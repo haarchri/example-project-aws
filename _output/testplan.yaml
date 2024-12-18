@@ -1,0 +1,228 @@
+items:
+- apiVersion: meta.dev.upbound.io/v1alpha1
+  kind: CompositionTest
+  spec:
+    assert:
+    - apiVersion: s3.aws.upbound.io/v1beta1
+      kind: Bucket
+      spec:
+        deletionPolicy: Delete
+        forProvider:
+          region: eu-central-1
+        managementPolicies:
+        - '*'
+    composition: |
+      apiVersion: apiextensions.crossplane.io/v1
+      kind: Composition
+      metadata:
+        name: xstoragebuckets.platform.example.com
+      spec:
+        compositeTypeRef:
+          apiVersion: platform.example.com/v1alpha1
+          kind: XStorageBucket
+        mode: Pipeline
+        pipeline:
+        - functionRef:
+            name: upbound-example-project-awscompose-bucket-kcl
+          step: compose-bucket-kcl
+        - functionRef:
+            name: crossplane-contrib-function-auto-ready
+          step: crossplane-contrib-function-auto-ready
+    xr:
+      apiVersion: platform.example.com/v1alpha1
+      kind: XStorageBucket
+      metadata:
+        name: test
+      spec:
+        parameters:
+          acl: private
+          region: eu-central-1
+          versioning: false
+    xrd: |
+      apiVersion: apiextensions.crossplane.io/v1
+      kind: CompositeResourceDefinition
+      metadata:
+        name: xstoragebuckets.platform.example.com
+      spec:
+        claimNames:
+          kind: StorageBucket
+          plural: storagebuckets
+        group: platform.example.com
+        names:
+          categories:
+          - crossplane
+          kind: XStorageBucket
+          plural: xstoragebuckets
+        versions:
+        - name: v1alpha1
+          referenceable: true
+          schema:
+            openAPIV3Schema:
+              description: StorageBucket is the Schema for the StorageBucket API.
+              properties:
+                spec:
+                  description: StorageBucketSpec defines the desired state of StorageBucket.
+                  properties:
+                    parameters:
+                      properties:
+                        acl:
+                          type: string
+                        region:
+                          type: string
+                        versioning:
+                          type: boolean
+                      type: object
+                      required:
+                      - acl
+                      - region
+                      - versioning
+                  type: object
+                  required:
+                  - parameters
+                status:
+                  description: StorageBucketStatus defines the observed state of StorageBucket.
+                  type: object
+              required:
+              - spec
+              type: object
+          served: true
+      status:
+        controllers:
+          compositeResourceClaimType:
+            apiVersion: ""
+            kind: ""
+          compositeResourceType:
+            apiVersion: ""
+            kind: ""
+- apiVersion: meta.dev.upbound.io/v1alpha1
+  kind: CompositionTest
+  spec:
+    assert:
+    - apiVersion: s3.aws.upbound.io/v1beta1
+      kind: Bucket
+      spec:
+        deletionPolicy: Delete
+        forProvider:
+          region: eu-central-1
+        managementPolicies:
+        - '*'
+    - apiVersion: s3.aws.upbound.io/v1beta1
+      kind: BucketACL
+      spec:
+        deletionPolicy: Delete
+        forProvider:
+          region: eu-central-1
+        managementPolicies:
+        - '*'
+    composition: |
+      apiVersion: apiextensions.crossplane.io/v1
+      kind: Composition
+      metadata:
+        name: xstoragebuckets.platform.example.com
+      spec:
+        compositeTypeRef:
+          apiVersion: platform.example.com/v1alpha1
+          kind: XStorageBucket
+        mode: Pipeline
+        pipeline:
+        - functionRef:
+            name: upbound-example-project-awscompose-bucket-kcl
+          step: compose-bucket-kcl
+        - functionRef:
+            name: crossplane-contrib-function-auto-ready
+          step: crossplane-contrib-function-auto-ready
+    observedResources:
+    - apiVersion: s3.aws.upbound.io/v1beta1
+      kind: Bucket
+      metadata:
+        annotations:
+          crossplane.io/composition-resource-name: test-boc
+        name: test-boc
+      spec:
+        deletionPolicy: Delete
+        forProvider:
+          region: eu-central-1
+        managementPolicies:
+        - '*'
+      status:
+        atProvider:
+          arn: test-boc
+        conditions:
+        - lastTransitionTime: '2024-12-18T16:15:31Z'
+          reason: Available
+          status: 'True'
+          type: Ready
+        - lastTransitionTime: '2024-12-18T16:15:31Z'
+          reason: Success
+          status: 'True'
+          type: FunctionSuccess
+        - lastTransitionTime: '2024-12-18T16:15:31Z'
+          reason: ReconcileSuccess
+          status: 'True'
+          type: Synced
+    xr:
+      apiVersion: platform.example.com/v1alpha1
+      kind: XStorageBucket
+      metadata:
+        name: test
+      spec:
+        parameters:
+          acl: private
+          region: eu-central-1
+          versioning: false
+    xrd: |
+      apiVersion: apiextensions.crossplane.io/v1
+      kind: CompositeResourceDefinition
+      metadata:
+        name: xstoragebuckets.platform.example.com
+      spec:
+        claimNames:
+          kind: StorageBucket
+          plural: storagebuckets
+        group: platform.example.com
+        names:
+          categories:
+          - crossplane
+          kind: XStorageBucket
+          plural: xstoragebuckets
+        versions:
+        - name: v1alpha1
+          referenceable: true
+          schema:
+            openAPIV3Schema:
+              description: StorageBucket is the Schema for the StorageBucket API.
+              properties:
+                spec:
+                  description: StorageBucketSpec defines the desired state of StorageBucket.
+                  properties:
+                    parameters:
+                      properties:
+                        acl:
+                          type: string
+                        region:
+                          type: string
+                        versioning:
+                          type: boolean
+                      type: object
+                      required:
+                      - acl
+                      - region
+                      - versioning
+                  type: object
+                  required:
+                  - parameters
+                status:
+                  description: StorageBucketStatus defines the observed state of StorageBucket.
+                  type: object
+              required:
+              - spec
+              type: object
+          served: true
+      status:
+        controllers:
+          compositeResourceClaimType:
+            apiVersion: ""
+            kind: ""
+          compositeResourceType:
+            apiVersion: ""
+            kind: ""
